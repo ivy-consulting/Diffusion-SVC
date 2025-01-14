@@ -115,7 +115,7 @@ if __name__ == "__main__":
     limit_f0_min = 50
     limit_f0_max = 1100
     # device
-    device = 'cuda'
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
     # 扩散部分完全不合成安全区，打开可以减少硬件压力并加速，但是会损失合成效果
     diff_jump_silence_front = False
     # 如果需要使用naive模型进行浅扩散，在这里设置naive model的路径, 如果是组合模型(.ptc)就不用了
