@@ -2,20 +2,40 @@ from fastapi import FastAPI, Form, UploadFile, HTTPException
 import subprocess
 from pathlib import Path
 import os
+import json
 
 app = FastAPI()
+
+# Load configuration from config.json
+with open('config.json', 'r') as f:
+    config = json.load(f)
 
 @app.post("/process-audio/")
 async def process_audio(
     input_wav: UploadFile,
+    model_name: str = Form(...),
     output_wav: str = Form(...),
-    combine_model: str = Form(...),
-    keychange: int = Form(0),
-    speaker_id: int = Form(1),
-    speedup: int = Form(10),
-    method: str = Form("dpm-solver"),
-    kstep: int = Form(200)
+    combine_model: str = Form(None),
+    keychange: int = Form(None),
+    speaker_id: int = Form(None),
+    speedup: int = Form(None),
+    method: str = Form(None),
+    kstep: int = Form(None)
 ):
+    # Retrieve model configuration from config.json
+    if model_name not in config['models']:
+        raise HTTPException(status_code=400, detail=f"Model {model_name} not found in configuration.")
+    
+    model_config = config['models'][model_name]
+    
+    # Use provided values or fall back to config defaults
+    combine_model = combine_model or model_config['model_path']
+    keychange = keychange if keychange is not None else model_config['keychange']
+    speaker_id = speaker_id if speaker_id is not None else model_config['spk_id']
+    speedup = speedup if speedup is not None else model_config['speedup']
+    method = method or model_config['method']
+    kstep = kstep if kstep is not None else model_config['kstep']
+    
     # Save uploaded file temporarily
     temp_input_path = f"/tmp/{input_wav.filename}"
     try:
@@ -35,7 +55,8 @@ async def process_audio(
     
     # Command to execute
     command = [
-        "python", "main.py",
+        "python", "main.py", 
+        "--model_name", model_name,
         "-i", temp_input_path,
         "-model", combine_model,
         "-o", str(temp_output_path),
@@ -45,7 +66,7 @@ async def process_audio(
         "-method", method,
         "-kstep", str(kstep)
     ]
-    
+        
     # Execute the command
     try:
         subprocess.run(command, check=True)
