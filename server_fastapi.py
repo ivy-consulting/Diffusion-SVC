@@ -1,14 +1,19 @@
 from fastapi import FastAPI, Form, UploadFile, HTTPException
-import subprocess
 from pathlib import Path
 import os
 import json
+import librosa
+import soundfile as sf
+from tools.infer_tools import DiffusionSVC
+import torch
+from ast import literal_eval
 
 app = FastAPI()
 
 # Load configuration from config.json
 with open('config.json', 'r') as f:
     config = json.load(f)
+
 
 @app.post("/process-audio/")
 async def process_audio(
@@ -27,6 +32,7 @@ async def process_audio(
         raise HTTPException(status_code=400, detail=f"Model {model_name} not found in configuration.")
     
     model_config = config['models'][model_name]
+
     
     # Use provided values or fall back to config defaults
     combine_model = combine_model or model_config['model_path']
@@ -41,6 +47,7 @@ async def process_audio(
     try:
         with open(temp_input_path, "wb") as f:
             f.write(input_wav.file.read())
+        print("input file saved", temp_input_path)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save input file: {str(e)}")
     
@@ -53,25 +60,47 @@ async def process_audio(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to create output directory: {str(e)}")
     
-    # Command to execute
-    command = [
-        "python", "main.py", 
-        "--model_name", model_name,
-        "-i", temp_input_path,
-        "-model", combine_model,
-        "-o", str(temp_output_path),
-        "-k", str(keychange),
-        "-id", str(speaker_id),
-        "-speedup", str(speedup),
-        "-method", method,
-        "-kstep", str(kstep)
-    ]
-        
-    # Execute the command
+    # Load and process the audio using DiffusionSVC
     try:
-        subprocess.run(command, check=True)
+        device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        diffusion_svc = DiffusionSVC(device=device)
+
+        diffusion_svc.load_model(model_path=combine_model, f0_model=model_config.get('pitch_extractor', "None"), f0_max=model_config.get('f0_max', "None"), f0_min=model_config.get('f0_min', "None"))
+        
+        print("Model loaded successfully!")
+        spk_mix_dict = literal_eval(model_config.get("spk_mix_dict", "None"))
+        spk_emb = None
+        print("litral eval success")
+
+        # load wav
+        in_wav, in_sr = librosa.load(temp_input_path, sr=None)
+        if len(in_wav.shape) > 1:
+            in_wav = librosa.to_mono(in_wav)
+
+        print("---- to enter to infer ----")
+        
+        # infer
+        out_wav, out_sr = diffusion_svc.infer_from_long_audio(
+            in_wav, sr=in_sr,
+            key=float(keychange),
+            spk_id=int(speaker_id),
+            spk_mix_dict=spk_mix_dict,
+            aug_shift=int(model_config.get('formant_shift_key', 0)),
+            infer_speedup=int(speedup),
+            method=config.get('method', 'dpm-solver'),
+            k_step=config.get('kstep', 200),
+            use_tqdm=True,
+            spk_emb=spk_emb,
+            threhold=float(model_config.get('threhold', 0)),
+            threhold_for_split=float(model_config.get('threhold_for_split', 0)),
+            min_len=int(model_config.get('min_len', 0)),
+            index_ratio=float(model_config.get('index_ratio', 0))
+        )
+        
+        # save
+        sf.write(temp_output_path, out_wav, out_sr)
         return {"message": "Processing complete", "output_file": str(temp_output_path)}
-    except subprocess.CalledProcessError as e:
+    except Exception as e:
         raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
     finally:
         # Clean up the temporary input file

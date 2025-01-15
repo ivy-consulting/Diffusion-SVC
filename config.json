@@ -8,7 +8,15 @@
             "keychange": 0,
             "speedup": 10,
             "method": "dpm-solver",
-            "kstep": 200
+            "kstep": 200,
+            "formant_shift_key": 0,
+            "pitch_extractor": "fcpe",
+            "f0_min": 50,
+            "f0_max": 1100,
+            "threhold": -60,
+            "threhold_for_split": -40,
+            "min_len": 5000,
+            "index_ratio": 0
         },
         "saotome": {
             "name": "Saotome",
@@ -18,7 +26,15 @@
             "keychange": 0,
             "speedup": 10,
             "method": "dpm-solver",
-            "kstep": 200
+            "kstep": 200,
+            "formant_shift_key": 0,
+            "pitch_extractor": "fcpe",
+            "f0_min": 50,
+            "f0_max": 1100,
+            "threhold": -60,
+            "threhold_for_split": -40,
+            "min_len": 5000,
+            "index_ratio": 0
         },
         "siratori": {
             "name": "Siratori",
@@ -28,7 +44,15 @@
             "keychange": 0,
             "speedup": 10,
             "method": "dpm-solver",
-            "kstep": 200
+            "kstep": 200,
+            "formant_shift_key": 0,
+            "pitch_extractor": "fcpe",
+            "f0_min": 50,
+            "f0_max": 1100,
+            "threhold": -60,
+            "threhold_for_split": -40,
+            "min_len": 5000,
+            "index_ratio": 0
         },
         "igarashi": {
             "name": "Igarashi",
@@ -38,7 +62,15 @@
             "keychange": 0,
             "speedup": 10,
             "method": "dpm-solver",
-            "kstep": 200
+            "kstep": 200,
+            "formant_shift_key": 0,
+            "pitch_extractor": "fcpe",
+            "f0_min": 50,
+            "f0_max": 1100,
+            "threhold": -60,
+            "threhold_for_split": -40,
+            "min_len": 5000,
+            "index_ratio": 0
         }
     }
 }

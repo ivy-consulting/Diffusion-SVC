@@ -173,6 +173,7 @@ if __name__ == '__main__':
     diffusion_svc = DiffusionSVC(device=device)  # 加载模型
     diffusion_svc.load_model(model_path=cmd.model, f0_model=cmd.pitch_extractor, f0_max=cmd.f0_max, f0_min=cmd.f0_min)
 
+    print("the thing passed to literal eval", cmd.spk_mix_dict)
     spk_mix_dict = literal_eval(cmd.spk_mix_dict)
 
     naive_model_path = cmd.naive_model
