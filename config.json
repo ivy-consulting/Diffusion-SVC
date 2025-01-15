@@ -1,0 +1,44 @@
+{
+    "models": {
+        "saionji": {
+            "name": "Saionji",
+            "model_path": "exp/saionji-saotome/model_110000.pt",
+            "naive_model_path": "exp/saionji-saotome/naive_model_110000.pt",
+            "spk_id": 1,
+            "keychange": 0,
+            "speedup": 10,
+            "method": "dpm-solver",
+            "kstep": 200
+        },
+        "saotome": {
+            "name": "Saotome",
+            "model_path": "exp/saionji-saotome/model_110000.pt",
+            "naive_model_path": "exp/saionji-saotome/naive_model_110000.pt",
+            "spk_id": 2,
+            "keychange": 0,
+            "speedup": 10,
+            "method": "dpm-solver",
+            "kstep": 200
+        },
+        "siratori": {
+            "name": "Siratori",
+            "model_path": "exp/siratori/model_25000.pt",
+            "naive_model_path": "exp/siratori/naive_model_25000.pt",
+            "spk_id": 1,
+            "keychange": 0,
+            "speedup": 10,
+            "method": "dpm-solver",
+            "kstep": 200
+        },
+        "igarashi": {
+            "name": "Igarashi",
+            "model_path": "exp/igarashi/model.pt",
+            "naive_model_path": "exp/igarashi/naive_model.pt",
+            "spk_id": 1,
+            "keychange": 0,
+            "speedup": 10,
+            "method": "dpm-solver",
+            "kstep": 200
+        }
+    }
+}
