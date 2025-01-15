@@ -17,5 +17,5 @@ EXPOSE 8000
 ENV NAME World
 
 # Run app.py when the container launches
-CMD ["python", "server_fastapi.py"]
+CMD ["uvicorn", "server_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]
 
