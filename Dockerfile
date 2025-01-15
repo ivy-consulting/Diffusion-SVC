@@ -1,21 +1,29 @@
-# Use the official Python image from the Docker Hub
+# Base image
 FROM python:3.9-slim
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy the current directory contents into the container at /app
-COPY . /app
+# Copy requirements file to the container
+COPY requirements.txt .
 
-# Install any needed packages specified in requirements.txt
+# Update system packages and install build tools
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    g++ \
+    cmake \
+    python3-dev \
+    libsndfile1-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Make port 8000 available to the world outside this container
+# Copy the rest of the application code
+COPY . .
+
+# Expose the desired port
 EXPOSE 8000
 
-# Define environment variable
-ENV NAME World
-
-# Run app.py when the container launches
+# Define the entry point
 CMD ["uvicorn", "server_fastapi:app", "--host", "0.0.0.0", "--port", "8000"]
-
