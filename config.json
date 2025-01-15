@@ -32,8 +32,8 @@
         },
         "igarashi": {
             "name": "Igarashi",
-            "model_path": "exp/igarashi/model.pt",
-            "naive_model_path": "exp/igarashi/naive_model.pt",
+            "model_path": "exp/igarashi/model_110000.pt",
+            "naive_model_path": "exp/igarashi/naive_model_110000.pt",
             "spk_id": 1,
             "keychange": 0,
             "speedup": 10,
