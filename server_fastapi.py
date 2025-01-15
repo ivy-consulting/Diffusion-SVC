@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Form, UploadFile, HTTPException
+from fastapi.responses import FileResponse
 from pathlib import Path
 import os
 import json
@@ -99,7 +100,7 @@ async def process_audio(
         
         # save
         sf.write(temp_output_path, out_wav, out_sr)
-        return {"message": "Processing complete", "output_file": str(temp_output_path)}
+        return FileResponse(path=temp_output_path, filename=output_wav, media_type='audio/wav')
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
     finally:
