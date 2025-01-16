@@ -64,6 +64,9 @@ async def process_audio(
     # Load and process the audio using DiffusionSVC
     try:
         device = 'cuda' if torch.cuda.is_available() else 'cpu'
+
+        print("device detected is ->", device)
+
         diffusion_svc = DiffusionSVC(device=device)
 
         diffusion_svc.load_model(model_path=combine_model, f0_model=model_config.get('pitch_extractor', "None"), f0_max=model_config.get('f0_max', "None"), f0_min=model_config.get('f0_min', "None"))
