@@ -16,6 +16,7 @@ scikit_learn
 scipy
 SoundFile
 tensorboard
+torch==2.5.1
 torchcrepe
 torchfcpe
 tqdm
