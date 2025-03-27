@@ -108,13 +108,13 @@ async def process_audio(
             aug_shift=int(formant_shift_key),
             infer_speedup=int(speedup),
             method=method,
-            k_step=kstep,
+            k_step=int(kstep),
             use_tqdm=True,
             spk_emb=spk_emb,
-            threhold=threhold,
-            threhold_for_split=threhold_for_split,
-            min_len=min_len,
-            index_ratio=index_ratio
+            threhold=int(threhold),
+            threhold_for_split=int(threhold_for_split),
+            min_len=int(min_len),
+            index_ratio=int(index_ratio)
         )
         
         # save
