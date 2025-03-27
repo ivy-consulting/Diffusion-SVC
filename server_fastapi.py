@@ -26,7 +26,15 @@ async def process_audio(
     speaker_id: int = Form(None),
     speedup: int = Form(None),
     method: str = Form(None),
-    kstep: int = Form(None)
+    kstep: int = Form(None),
+    formant_shift_key: int = Form(0),
+    pitch_extractor: str = Form("fcpe"),
+    f0_min: int = Form(50),
+    f0_max: int = Form(1100),
+    threhold: int = Form(-60),
+    threhold_for_split: int = Form(-40),
+    min_len: int = Form(5000),
+    index_ratio: int = Form(0)
 ):
     # Retrieve model configuration from config.json
     if model_name not in config['models']:
@@ -42,6 +50,14 @@ async def process_audio(
     speedup = speedup if speedup is not None else model_config['speedup']
     method = method or model_config['method']
     kstep = kstep if kstep is not None else model_config['kstep']
+    formant_shift_key = formant_shift_key if formant_shift_key is not None else model_config['formant_shift_key']
+    pitch_extractor = pitch_extractor or model_config['pitch_extractor']
+    f0_min = f0_min if f0_min is not None else model_config['f0_min']
+    f0_max = f0_max if f0_max is not None else model_config['f0_max']
+    threhold = threhold if threhold is not None else model_config['threhold']
+    threhold_for_split = threhold_for_split if threhold_for_split is not None else model_config['threhold_for_split']
+    min_len = min_len if min_len is not None else model_config['min_len']
+    index_ratio = index_ratio if index_ratio is not None else model_config['index_ratio']
     
     # Save uploaded file temporarily
     temp_input_path = f"/tmp/{input_wav.filename}"
@@ -69,7 +85,7 @@ async def process_audio(
 
         diffusion_svc = DiffusionSVC(device=device)
 
-        diffusion_svc.load_model(model_path=combine_model, f0_model=model_config.get('pitch_extractor', "None"), f0_max=model_config.get('f0_max', "None"), f0_min=model_config.get('f0_min', "None"))
+        diffusion_svc.load_model(model_path=combine_model, f0_model=pitch_extractor, f0_max=f0_max, f0_min=f0_min)
         
         print("Model loaded successfully!")
         spk_mix_dict = literal_eval(model_config.get("spk_mix_dict", "None"))
@@ -89,16 +105,16 @@ async def process_audio(
             key=float(keychange),
             spk_id=int(speaker_id),
             spk_mix_dict=spk_mix_dict,
-            aug_shift=int(model_config.get('formant_shift_key', 0)),
+            aug_shift=int(formant_shift_key),
             infer_speedup=int(speedup),
-            method=config.get('method', 'dpm-solver'),
-            k_step=config.get('kstep', 200),
+            method=method,
+            k_step=kstep,
             use_tqdm=True,
             spk_emb=spk_emb,
-            threhold=float(model_config.get('threhold', 0)),
-            threhold_for_split=float(model_config.get('threhold_for_split', 0)),
-            min_len=int(model_config.get('min_len', 0)),
-            index_ratio=float(model_config.get('index_ratio', 0))
+            threhold=threhold,
+            threhold_for_split=threhold_for_split,
+            min_len=min_len,
+            index_ratio=index_ratio
         )
         
         # save
