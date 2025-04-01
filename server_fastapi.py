@@ -23,17 +23,17 @@ import subprocess
 from fastapi import File
 
 @app.post("/infer/")
-async def infer_audio(file: UploadFile = File(...), model_name: str = Form(...), output_wav: str = Form(...)):
+async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(...), output_wav: str = Form(...)):
     if model_name.lower() != "saotome":
         return {"error": f"Model for the actor name {model_name} is not available."}
-    
+    input_filename, input_ext = os.path.splitext(input_wav.filename)
     # Save uploaded file to a temporary path
-    temp_input_path = f"/tmp/{file.filename}"
-    temp_output_path = f"/tmp/{output_wav}"
+    temp_input_path = f"/tmp/{input_wav.filename}"
+    temp_output_path = f"/tmp/{input_filename}.out{input_ext}"
 
     try:
         with open(temp_input_path, "wb") as f:
-            f.write(file.file.read())
+            f.write(input_wav.file.read())
         print("input file saved", temp_input_path)
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save input file: {str(e)}")
