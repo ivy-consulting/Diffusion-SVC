@@ -16,6 +16,48 @@ with open('config.json', 'r') as f:
     config = json.load(f)
 
 
+# Paths to model and config
+CONFIG_PATH = "/content/drive/MyDrive/sovits4data/logs/44k/config.json"
+MODEL_PATH = "/content/drive/MyDrive/sovits4data/logs/44k/G_3200.pth"
+import subprocess
+from fastapi import File
+
+@app.post("/infer/")
+async def infer_audio(file: UploadFile = File(...), model_name: str = Form(...), output_wav: str = Form(...)):
+    if model_name.lower() != "saotome":
+        return {"error": f"Model for the actor name {model_name} is not available."}
+    
+    # Save uploaded file to a temporary path
+    temp_input_path = f"/tmp/{file.filename}"
+    try:
+        with open(temp_input_path, "wb") as f:
+            f.write(file.file.read())
+        print("input file saved", temp_input_path)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to save input file: {str(e)}")
+
+    # Run inference
+    try:
+        command = [
+            "svc", "infer", temp_input_path, 
+            "-c", CONFIG_PATH, 
+            "-m", MODEL_PATH
+        ]
+        subprocess.run(command, check=True)
+
+        # Define output filename based on input
+        temp_output_path = Path(output_wav)
+
+        return FileResponse(temp_output_path, media_type="audio/wav", filename=output_wav)
+    except Exception as e:
+        return {"error": f"Inference failed, {e}"}
+    finally:
+        # Clean up temporary files
+        try:
+            os.remove(temp_input_path)
+        except Exception as e:
+            return {"error": f"Failed to clean up temporary files, {e}"}
+
 @app.post("/process-audio/")
 async def process_audio(
     input_wav: UploadFile,

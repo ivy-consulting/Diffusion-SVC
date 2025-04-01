@@ -3,6 +3,7 @@ fairseq
 flask
 flask_cors
 gin
+so-vits-svc-fork
 gin_config
 librosa
 local_attention
