@@ -17,8 +17,8 @@ with open('config.json', 'r') as f:
 
 
 # Paths to model and config
-CONFIG_PATH = "/content/drive/MyDrive/sovits4data/logs/44k/config.json"
-MODEL_PATH = "/content/drive/MyDrive/sovits4data/logs/44k/G_3200.pth"
+CONFIG_PATH = "high_range_models/config.json"
+MODEL_PATH = "high_range_models/G_riri_220.pth"
 import subprocess
 from fastapi import File
 
