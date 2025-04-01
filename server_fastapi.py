@@ -29,6 +29,8 @@ async def infer_audio(file: UploadFile = File(...), model_name: str = Form(...),
     
     # Save uploaded file to a temporary path
     temp_input_path = f"/tmp/{file.filename}"
+    temp_output_path = f"/tmp/{output_wav}"
+
     try:
         with open(temp_input_path, "wb") as f:
             f.write(file.file.read())
@@ -45,8 +47,7 @@ async def infer_audio(file: UploadFile = File(...), model_name: str = Form(...),
         ]
         subprocess.run(command, check=True)
 
-        # Define output filename based on input
-        temp_output_path = Path(output_wav)
+
 
         return FileResponse(temp_output_path, media_type="audio/wav", filename=output_wav)
     except Exception as e:
@@ -55,6 +56,7 @@ async def infer_audio(file: UploadFile = File(...), model_name: str = Form(...),
         # Clean up temporary files
         try:
             os.remove(temp_input_path)
+            print("input file removed", temp_input_path)
         except Exception as e:
             return {"error": f"Failed to clean up temporary files, {e}"}
 
