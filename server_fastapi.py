@@ -17,15 +17,19 @@ with open('config.json', 'r') as f:
 
 
 # Paths to model and config
-CONFIG_PATH = "high_range_models/config.json"
-MODEL_PATH = "high_range_models/G_riri_220.pth"
+saotome_CONFIG_PATH = "high_range_models/config.json"
+saotome_MODEL_PATH = "high_range_models/G_riri_220.pth"
+
+kisaragi_CONFIG_PATH = "high_range_models/kisaragi/config.json"
+kisaragi_MODEL_PATH = "high_range_models/kisaragi/mixed_model_slerp.pth"
+
 import subprocess
 from fastapi import File
 
 @app.post("/infer/")
 async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(...), output_wav: str = Form(...)):
-    if model_name.lower() != "saotome":
-        return {"error": f"Model for the actor name {model_name} is not available."}
+    # if model_name.lower() != "saotome":
+    #     return {"error": f"Model for the actor name {model_name} is not available."}
     input_filename, input_ext = os.path.splitext(input_wav.filename)
     # Save uploaded file to a temporary path
     temp_input_path = f"/tmp/{input_wav.filename}"
@@ -40,11 +44,36 @@ async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(
 
     # Run inference
     try:
-        command = [
-            "svc", "infer", temp_input_path, 
-            "-c", CONFIG_PATH, 
-            "-m", MODEL_PATH
-        ]
+        if model_name.lower() == "saotome":
+            CONFIG_PATH = saotome_CONFIG_PATH
+            MODEL_PATH = saotome_MODEL_PATH
+            command = [
+                "svc", "infer", temp_input_path, 
+                "-c", CONFIG_PATH, 
+                "-m", MODEL_PATH
+            ]
+        elif model_name.lower() in ['kisaragi_umika', 'kisaragi_hanaka']:
+            CONFIG_PATH = kisaragi_CONFIG_PATH
+            MODEL_PATH = kisaragi_MODEL_PATH
+
+            if model_name.lower() == "kisaragi_umika":
+                command = [
+                    "svc", "infer", temp_input_path, 
+                    "-c", CONFIG_PATH, 
+                    "-m", MODEL_PATH, 
+                    "-s", "umika"
+                ]
+            else:
+                command = [
+                    "svc", "infer", temp_input_path, 
+                    "-c", CONFIG_PATH, 
+                    "-m", MODEL_PATH, 
+                    "-s", "hanaka"
+                ]
+        else:
+            return {"error": f"Model for the actor name {model_name} is not available."}
+        
+        
         subprocess.run(command, check=True)
 
 
