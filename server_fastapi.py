@@ -52,7 +52,6 @@ async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(
                 "svc", "infer", temp_input_path, 
                 "-c", CONFIG_PATH, 
                 "-m", MODEL_PATH,
-                "-d", "cuda:0",
             ]
         elif model_name.lower() in ['kisaragi_umika', 'kisaragi_hanaka']:
             CONFIG_PATH = kisaragi_CONFIG_PATH
@@ -63,16 +62,14 @@ async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(
                     "svc", "infer", temp_input_path, 
                     "-c", CONFIG_PATH, 
                     "-m", MODEL_PATH, 
-                    "-s", "umika",
-                    "-d", "cuda:0",
+                    "-s", "umika"
                 ]
             else:
                 command = [
                     "svc", "infer", temp_input_path, 
                     "-c", CONFIG_PATH, 
                     "-m", MODEL_PATH, 
-                    "-s", "hanaka",
-                    "-d", "cuda:0",
+                    "-s", "hanaka"
                 ]
         else:
             return {"error": f"Model for the actor name {model_name} is not available."}
