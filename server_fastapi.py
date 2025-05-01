@@ -43,6 +43,7 @@ async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(
         raise HTTPException(status_code=500, detail=f"Failed to save input file: {str(e)}")
 
     # Run inference
+
     try:
         if model_name.lower() == "saotome":
             CONFIG_PATH = saotome_CONFIG_PATH
@@ -50,7 +51,8 @@ async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(
             command = [
                 "svc", "infer", temp_input_path, 
                 "-c", CONFIG_PATH, 
-                "-m", MODEL_PATH
+                "-m", MODEL_PATH,
+                "-d", "cuda:0",
             ]
         elif model_name.lower() in ['kisaragi_umika', 'kisaragi_hanaka']:
             CONFIG_PATH = kisaragi_CONFIG_PATH
@@ -61,14 +63,16 @@ async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(
                     "svc", "infer", temp_input_path, 
                     "-c", CONFIG_PATH, 
                     "-m", MODEL_PATH, 
-                    "-s", "umika"
+                    "-s", "umika",
+                    "-d", "cuda:0",
                 ]
             else:
                 command = [
                     "svc", "infer", temp_input_path, 
                     "-c", CONFIG_PATH, 
                     "-m", MODEL_PATH, 
-                    "-s", "hanaka"
+                    "-s", "hanaka",
+                    "-d", "cuda:0",
                 ]
         else:
             return {"error": f"Model for the actor name {model_name} is not available."}
