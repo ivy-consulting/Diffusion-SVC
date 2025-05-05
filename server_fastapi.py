@@ -23,11 +23,14 @@ saotome_MODEL_PATH = "high_range_models/G_riri_220.pth"
 kisaragi_CONFIG_PATH = "high_range_models/kisaragi/config.json"
 kisaragi_MODEL_PATH = "high_range_models/kisaragi/mixed_model_slerp.pth"
 
+saotome_en_config = "high_range_models_en/config.json"
+saotome_en_model = "high_range_models_en/mixed_model_slerp.pth"
+
 import subprocess
 from fastapi import File
 
 @app.post("/infer/")
-async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(...), output_wav: str = Form(...)):
+async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(...), output_wav: str = Form(...), lang: str = Form("ja")):
     # if model_name.lower() != "saotome":
     #     return {"error": f"Model for the actor name {model_name} is not available."}
     input_filename, input_ext = os.path.splitext(input_wav.filename)
@@ -45,7 +48,16 @@ async def infer_audio(input_wav: UploadFile = File(...), model_name: str = Form(
     # Run inference
 
     try:
-        if model_name.lower() == "saotome":
+        
+        if model_name.lower() == "saotome" and lang == "en":
+            CONFIG_PATH = saotome_en_config
+            MODEL_PATH = saotome_en_model
+            command = [
+                "svc", "infer", temp_input_path, 
+                "-c", CONFIG_PATH, 
+                "-m", MODEL_PATH,
+            ]
+        elif model_name.lower() == "saotome":
             CONFIG_PATH = saotome_CONFIG_PATH
             MODEL_PATH = saotome_MODEL_PATH
             command = [
